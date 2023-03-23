@@ -1,6 +1,7 @@
 package study.querydsl;
 
 
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +14,8 @@ import study.querydsl.entity.Team;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
+import java.util.List;
 
 import static study.querydsl.entity.QMember.*;
 
@@ -80,6 +83,36 @@ public class QuerydslBasicTest {
 
     }
 
+    @Test
+    public void search(){
+        List<Member> findMembers = queryFactory.selectFrom(member)
+                .where(member.username.eq("member1")
+                        .and(member.age.eq(10))
+                ).fetch();
+
+        Assertions.assertThat(findMembers.get(0).getUsername()).isEqualTo("member1");
+    }
+
+
+    @Test
+    public void search2(){
+        List<Member> findMembers = queryFactory.selectFrom(member)
+                .where(member.username.eq("member1")
+                        .and(member.age.between(10, 30))
+                ).fetch();
+
+        Assertions.assertThat(findMembers.get(0).getUsername()).isEqualTo("member1");
+    }
+
+    @Test
+    public void searchAndParam(){
+        List<Member> findMembers = queryFactory.selectFrom(member)
+                .where(member.username.eq("member1"),
+                        member.age.eq(10)
+                ).fetch();
+
+        Assertions.assertThat(findMembers.get(0).getUsername()).isEqualTo("member1");
+    }
 
 
 }

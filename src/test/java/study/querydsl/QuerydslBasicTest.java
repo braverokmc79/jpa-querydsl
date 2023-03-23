@@ -14,6 +14,8 @@ import study.querydsl.entity.Team;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import static study.querydsl.entity.QMember.*;
+
 @SpringBootTest
 @Transactional
 public class QuerydslBasicTest {
@@ -66,12 +68,12 @@ public class QuerydslBasicTest {
     public void startQuerydsl(){
         //member1을 찾아라.
 
-        QMember m=new QMember("m");
+//        QMember m=new QMember("m");
 
         Member findMember=queryFactory
-                .select(m)
-                .from(m)
-                .where(m.username.eq("member1"))  //파라미터 바인딩 철
+                .select(member)
+                .from(member)
+                .where(member.username.eq("member1"))  //파라미터 바인딩 철
                 .fetchOne();
 
         Assertions.assertThat(findMember.getUsername()).isEqualTo("member1");

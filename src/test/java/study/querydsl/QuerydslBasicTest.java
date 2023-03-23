@@ -1,6 +1,7 @@
 package study.querydsl;
 
 
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.assertj.core.api.Assertions;
@@ -113,6 +114,44 @@ public class QuerydslBasicTest {
 
         Assertions.assertThat(findMembers.get(0).getUsername()).isEqualTo("member1");
     }
+
+
+    @Test
+    public void resultFetch(){
+        //List
+        List<Member> fetch = queryFactory
+                                .selectFrom(member)
+                                .fetch();
+
+
+        //단건
+        Member findMember1 = queryFactory
+                                .selectFrom(member)
+                                .fetchOne();
+
+
+        //처음 한 건 조회
+        Member findMember2=queryFactory
+                            .selectFrom(member)
+                            .fetchFirst();
+
+
+        //페이징에서 사용
+        QueryResults<Member> results =queryFactory
+                    .selectFrom(member).fetchResults();
+
+            results.getTotal();
+            List<Member> content=results.getResults();
+
+
+            //count 쿼리로 사용
+        long count=queryFactory
+                .selectFrom(member)
+                .fetchCount();
+
+    }
+
+
 
 
 }

@@ -251,4 +251,54 @@ public class QuerydslBasicTest {
 
     }
 
+
+    /**
+     * 팀 A 에 소속된 모든 회원
+     */
+
+    @Test
+    public void join(){
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .join (member.team,team)
+                //.leftJoin(member.team, team)
+                .where(team.name.eq("teamA"))
+                .fetch();
+
+        Assertions.assertThat(result).extracting("username")
+                .containsExactly("member1", "member2");
+    }
+
+
+    /**
+     * 연관 관계가 없는 것도 조인이 가능하다.
+     * 세타 조인
+     * 회원의 이름이 팀 이름과 같은 회원을 조회
+     */
+
+    @Test
+    public void theta_join(){
+        em.persist(new Member("teamA"));
+        em.persist(new Member("teamB"));
+
+        /** 기존과 다르게 from 절에서 두개 테이블을 묶어줬다.
+         * 모든 팀테이블 조인 세타 조인  =>  member member0_ cross
+         *
+         selec member1  from
+         Member member1,
+                Team team
+         where
+            member1.username = team.name
+         * **/
+        List<Member> result = queryFactory.select(member)
+                .from(member, team)
+                .where(member.username.eq(team.name)).fetch();
+
+        Assertions.assertThat(result)
+                .extracting("username")
+                .containsExactly("teamA", "teamB");
+        
+    }
+    
+
 }

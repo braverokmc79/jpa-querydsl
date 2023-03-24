@@ -299,6 +299,100 @@ public class QuerydslBasicTest {
                 .containsExactly("teamA", "teamB");
         
     }
-    
+
+
+    /**
+     * 예) 회원과 팀을 조인하면서, 팀 이름이 teamA인 팀만 조인, 회원은 모드 조회
+     * JPQL: SELECT m, t FROM Member m LEFT JOIN Team t on m.username = t.name
+     * SQL: SELECT m.*, t.* FROM Member m LEFT JOIN Team t ON m.username = t.name
+     */
+    @Test
+    public void join_on_filtering(){
+        List<Tuple> result = queryFactory
+                .select(member,team)
+                .from(member)
+                //.leftJoin(member.team, team)
+                .join(member.team, team)
+                //.on(team.name.eq("teamA"))
+                //inner join  경우 같다 on 절을 쓰나 where 절을 쓰나 동일하다.
+                .where(team.name.eq("teamA"))
+                .fetch();
+
+        for(Tuple tuple :result){
+            System.out.println("tuple = " + tuple);
+        }
+
+        /** innerjoin 경우 다음 방법 을 추천 **/
+        queryFactory
+                .select(member,team)
+                .from(member)
+                .join(member.team, team)
+                .where(team.name.eq("teamA"))
+                .fetch();
+    }
+
+
+    /**
+     * 2. 연관관계 없는 엔티티 외부 조인
+     * 예) 회원의 이름과 팀의 이름이 같은 대상 외부 조인
+     * JPQL: SELECT m, t FROM Member m LEFT JOIN Team t on m.username = t.name
+     * SQL: SELECT m.*, t.* FROM Member m LEFT JOIN Team t ON m.username = t.name
+     */
+    @Test
+    public void join_on_no_relation(){
+        em.persist(new Member("teamA"));
+        em.persist(new Member("teamB"));
+        em.persist(new Member("teamB"));
+
+
+        //주의  .leftJoin(team) 엔티티 하나만 들어갔다.
+        List<Tuple> result = queryFactory
+                .select(member,team)
+                .from(member)
+                .leftJoin(team)
+                .on(member.username.eq(team.name))
+                .fetch();
+
+
+        for(Tuple tuple :result){
+            System.out.println("tuple = " + tuple);
+        }
+    }
+//    =>출력
+    /**
+     *
+
+    select
+        member1,
+        team
+    from
+        Member member1
+    left join
+        Team team with member1.username = team.name
+
+     // select
+    member0_.member_id as member_i1_1_0_,
+    team1_.team_id as team_id1_2_1_,
+    member0_.age as age2_1_0_,
+    member0_.team_id as team_id4_1_0_,
+    member0_.username as username3_1_0_,
+    team1_.name as name2_2_1_
+            from
+    member member0_
+    left outer join
+    team team1_
+    on (
+            member0_.username=team1_.name
+    )
+     */
+
+//    tuple = [Member(id=3, username=member1, age=10), null]
+//    tuple = [Member(id=4, username=member2, age=20), null]
+//    tuple = [Member(id=5, username=member3, age=30), null]
+//    tuple = [Member(id=6, username=member4, age=40), null]
+//    tuple = [Member(id=7, username=teamA, age=0), Team(id=1, name=teamA)]
+//    tuple = [Member(id=8, username=teamB, age=0), Team(id=2, name=teamB)]
+//    tuple = [Member(id=9, username=teamB, age=0), Team(id=2, name=teamB)]
+
 
 }

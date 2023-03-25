@@ -15,7 +15,9 @@ import study.querydsl.entity.QMember;
 import study.querydsl.entity.Team;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceUnit;
 
 import java.util.List;
 
@@ -393,6 +395,42 @@ public class QuerydslBasicTest {
 //    tuple = [Member(id=7, username=teamA, age=0), Team(id=1, name=teamA)]
 //    tuple = [Member(id=8, username=teamB, age=0), Team(id=2, name=teamB)]
 //    tuple = [Member(id=9, username=teamB, age=0), Team(id=2, name=teamB)]
+
+
+
+    @PersistenceUnit
+    EntityManagerFactory emf;
+
+
+    @Test
+    public void fetchJoinNo(){
+        em.flush();
+        em.clear();
+
+        Member finndMember =queryFactory
+                .selectFrom(member)
+                .where(member.username.eq("member1"))
+                .fetchOne();
+
+     boolean loaded=emf.getPersistenceUnitUtil().isLoaded(finndMember.getTeam());
+     Assertions.assertThat(loaded).as("페치 조인 미적용").isFalse();
+    }
+
+
+    @Test
+    public void fetchJoinUse(){
+        em.flush();
+        em.clear();
+
+        Member finndMember =queryFactory
+                .selectFrom(member)
+                .join(member.team, team).fetchJoin()
+                .where(member.username.eq("member1"))
+                .fetchOne();
+
+        boolean loaded=emf.getPersistenceUnitUtil().isLoaded(finndMember.getTeam());
+        Assertions.assertThat(loaded).as("페치 조인 적용").isTrue();
+    }
 
 
 }

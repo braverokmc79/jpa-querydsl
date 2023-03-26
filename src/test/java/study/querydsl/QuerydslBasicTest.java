@@ -17,6 +17,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
 import study.querydsl.dto.QMemberDto;
@@ -25,10 +26,7 @@ import study.querydsl.entity.Member;
 import study.querydsl.entity.QMember;
 import study.querydsl.entity.Team;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceUnit;
+import javax.persistence.*;
 import java.util.List;
 
 import static com.querydsl.jpa.JPAExpressions.select;
@@ -793,5 +791,73 @@ public class QuerydslBasicTest {
     private BooleanExpression allEq(String usernameCond, Integer ageCond){
         return usernameEq(usernameCond).and(ageEq(ageCond));
     }
+
+
+    @Test
+    @Commit
+    public void bulkUpdate(){
+        //member1 =10 -> DB member1
+        //member2 =20 -> DB member2
+        //member3 =30 -> DB member3
+        //member4 =40 -> DB member4
+
+        long count = queryFactory
+                .update(member)
+                .set(member.username, "비회원")
+                .where(member.age.lt(28))
+                .execute();
+
+        em.flush();
+        em.clear();
+        //member1 =10 -> DB 비회원
+        //member2 =20 -> DB 비회원
+        //member3 =30 -> DB member3
+        //member4 =40 -> DB member4
+
+        List<Member> result = queryFactory.selectFrom(member).fetch();
+
+        for (Member member1 : result) {
+            System.out.println("member1 = " + member1);
+        }
+    }
+
+
+    /**
+     * 벌크연산 더하기
+     */
+    @Test
+    public void bulkAdd(){
+        long count =queryFactory
+                .update(member)
+                .set(member.age, member.age.add(1))
+                .execute();
+    }
+
+    /**
+     * 벌크 연산 곱하기
+     */
+    @Test
+    public void bulkMultiple(){
+        long count =queryFactory
+                .update(member)
+                .set(member.age, member.age.multiply(2))
+                .execute();
+    }
+
+
+    /**
+     * 벌크 연산 삭제
+     */
+    @Test
+    public void bulkDelete(){
+        queryFactory
+                .delete(member)
+                .where(member.age.gt(18))
+                .execute();
+    }
+
+
+
+
 
 }

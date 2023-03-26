@@ -794,7 +794,7 @@ public class QuerydslBasicTest {
 
 
     @Test
-    @Commit
+   // @Commit
     public void bulkUpdate(){
         //member1 =10 -> DB member1
         //member2 =20 -> DB member2
@@ -834,6 +834,18 @@ public class QuerydslBasicTest {
     }
 
     /**
+     * 벌크연산 빼기 - 로
+     */
+    @Test
+    public void bulkMinus(){
+        long count =queryFactory
+                .update(member)
+                .set(member.age, member.age.add(-1))
+                .execute();
+    }
+
+
+    /**
      * 벌크 연산 곱하기
      */
     @Test
@@ -857,6 +869,32 @@ public class QuerydslBasicTest {
     }
 
 
+
+    @Test
+    public void sqlFunction(){
+        List<String> result = queryFactory
+                .select(Expressions.stringTemplate("function('replace', {0}, {1}, {2})", member.username, "member", "M"))
+                .from(member)
+                .fetch();
+        for (String s : result) {
+            System.out.println("s = " + s);
+        }
+    }
+
+
+    @Test
+    public void sqlFunction2(){
+        List<String> result = queryFactory
+            .select(member.username)
+                .from(member)
+                .where(member.username.eq(Expressions.stringTemplate("function('lower', {0})",
+                        member.username)))
+                .fetch();
+
+        for (String s : result) {
+            System.out.println("s = " + s);
+        }
+    }
 
 
 

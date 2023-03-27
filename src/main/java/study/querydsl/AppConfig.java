@@ -7,15 +7,15 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.persistence.EntityManager;
 
-@Configuration
-@RequiredArgsConstructor
+//@Configuration
+//@RequiredArgsConstructor
 public class AppConfig {
 
-    private final EntityManager em;
+   // private final EntityManager em;
 
-    @Bean
+ /*   @Bean
     public JPAQueryFactory queryFactory() {
         return new JPAQueryFactory(em);
-    }
+    }*/
 
 }

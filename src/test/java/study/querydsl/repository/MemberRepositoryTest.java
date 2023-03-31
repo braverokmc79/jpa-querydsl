@@ -46,7 +46,7 @@ class MemberRepositoryTest {
 
     @Test
     public void searchPageSimpleAndComplexTest(){
-
+        System.out.println("1 em = " + em);
         Team teamA = new Team("teamA");
         Team teamB=new Team("teamB");
         em.persist(teamA);
@@ -67,6 +67,8 @@ class MemberRepositoryTest {
         MemberSearchCondition condition=new MemberSearchCondition();
         PageRequest pageRequest =PageRequest.of(0,3);
 
+
+        System.out.println("2 em = " + em);
        // Page<MemberTeamDto> result=memberRepository.searchPageSimple(condition, pageRequest);
         Page<MemberTeamDto> result=memberRepository.searchPageComplex(condition, pageRequest);
 
